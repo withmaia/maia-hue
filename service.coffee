@@ -28,8 +28,9 @@ getState = (n, cb) ->
 setState = (n, state, cb) ->
     api.setLightState(n, state).then ->
         getState n, (err, lightState) ->
-            hue_service.publish 'changeState', lightState
-            cb null, {id: n, state: lightState}
+            change = {id: n, state: lightState}
+            hue_service.publish 'changeState', change
+            cb null, change
 
 pulseState = (n, state, t, cb) ->
     api.lightStatus(n).then (response) ->
