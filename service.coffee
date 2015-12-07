@@ -26,8 +26,10 @@ getState = (n, cb) ->
         cb(null, response.state)
 
 setState = (n, state, cb) ->
-    api.setLightState(n, state).then -> cb()
-    hue_service.publish 'changeState', {id: n, state}
+    api.setLightState(n, state).then ->
+        getState n, (err, lightState) ->
+            hue_service.publish 'changeState', lightState
+            cb null, {id: n, state: lightState}
 
 pulseState = (n, state, t, cb) ->
     api.lightStatus(n).then (response) ->
@@ -35,7 +37,7 @@ pulseState = (n, state, t, cb) ->
         setState n, state, -> setTimeout revert, t
 
 turnOn = (n, cb) ->
-    setState n, {on: true}, cb
+    setState n, {on: true, hue: 0, sat: 0, bri: 255}, cb
 
 turnOff = (n, cb) ->
     setState n, {on: false}, cb
